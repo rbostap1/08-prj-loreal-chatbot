@@ -7,13 +7,35 @@ const chatWindow = document.getElementById("chatWindow");
 chatWindow.textContent = "👋 Hello! How can I help you today?";
 
 /* Helper function to add a message to the chat window */
-function addMessage(text, sender) {
+function addMessage(text, sender, sources) {
   // Create a new div for the message
   const msgDiv = document.createElement("div");
   msgDiv.className = `msg ${sender}`;
   if (sender === "ai") {
     // Allow HTML for AI messages (for links, bold, etc.)
     msgDiv.innerHTML = text;
+
+    // If sources are provided, add a sources section
+    if (sources && Array.isArray(sources) && sources.length > 0) {
+      const sourcesDiv = document.createElement("div");
+      sourcesDiv.style.marginTop = "10px";
+      sourcesDiv.style.fontSize = "15px";
+      sourcesDiv.style.color = "#bca16a";
+      sourcesDiv.innerHTML =
+        "<b>Sources:</b><ul style='margin: 6px 0 0 18px; color: #bca16a;'>";
+      sources.forEach((src) => {
+        // Each source should be an object with {title, url}
+        if (src.url) {
+          sourcesDiv.innerHTML += `<li><a href="${
+            src.url
+          }" target="_blank" rel="noopener">${src.title || src.url}</a></li>`;
+        } else {
+          sourcesDiv.innerHTML += `<li>${src.title || src}</li>`;
+        }
+      });
+      sourcesDiv.innerHTML += "</ul>";
+      msgDiv.appendChild(sourcesDiv);
+    }
   } else {
     // User messages are plain text for safety
     msgDiv.textContent = text;
@@ -55,7 +77,7 @@ chatForm.addEventListener("submit", async (e) => {
   addMessage("Thinking...", "ai");
 
   try {
-    // Send the full conversation (except the initial system message) to the API
+    // Send the full conversation to the API
     const response = await fetch(
       "https://lorealchatbot.rbostap1.workers.dev/",
       {
@@ -79,9 +101,26 @@ chatForm.addEventListener("submit", async (e) => {
       chatWindow.removeChild(loadingMsg);
     }
 
-    // Show AI's reply (may include HTML)
+    // Show AI's reply (may include HTML and sources)
     if (data && data.choices && data.choices[0] && data.choices[0].message) {
-      addMessage(data.choices[0].message.content, "ai");
+      // Try to extract sources if present in response
+      let sources = [];
+      if (
+        data.choices[0].message.function_call &&
+        data.choices[0].message.function_call.arguments
+      ) {
+        try {
+          const args = JSON.parse(
+            data.choices[0].message.function_call.arguments
+          );
+          if (args.sources && Array.isArray(args.sources)) {
+            sources = args.sources;
+          }
+        } catch (e) {
+          // ignore JSON parse errors
+        }
+      }
+      addMessage(data.choices[0].message.content, "ai", sources);
       // Add AI's reply to conversation memory
       conversation.push({
         role: "assistant",
