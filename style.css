@@ -48,16 +48,63 @@ body {
 
 /* messages */
 .msg {
-  margin-bottom: 14px;
+  margin-bottom: 7px; /* reduced spacing */
   line-height: 1.5;
+  max-width: 75%;
+  padding: 10px 14px; /* slightly less padding */
+  border-radius: 18px;
+  display: inline-block;
+  clear: both;
+  word-break: break-word;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  font-size: 17px;
 }
 
 .msg.user {
   color: #000;
+  background: #e3f0ff;
+  align-self: flex-end;
+  float: right;
+  border-bottom-right-radius: 4px;
 }
 
 .msg.ai {
-  color: #666666;
+  color: #333;
+  background: #f1f1f1;
+  align-self: flex-start;
+  float: left;
+  border-bottom-left-radius: 4px;
+}
+
+/* Style links and sources in AI messages */
+.msg.ai a {
+  color: #1976d2;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.msg.ai a:hover {
+  color: #0d47a1;
+  text-decoration: underline;
+}
+
+.msg.ai ul,
+.msg.ai ol {
+  margin: 8px 0 8px 18px;
+  padding: 0;
+}
+
+.msg.ai li {
+  margin-bottom: 2px;
+}
+
+.msg.ai b,
+.msg.ai strong {
+  font-weight: bold;
+}
+
+.msg.ai u {
+  text-decoration: underline;
 }
 
 /* input row */
